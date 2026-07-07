@@ -1,0 +1,17 @@
+[
+    {
+        "name": "John Doe",
+        "age": 31,
+        "city": "New York"
+    },
+    {
+        "name": "Jane Smith",
+        "age": 26,
+        "city": "Los Angeles"
+    },
+    {
+        "name": "Sam Brown",
+        "age": 23,
+        "city": "Chicago"
+    }
+]
