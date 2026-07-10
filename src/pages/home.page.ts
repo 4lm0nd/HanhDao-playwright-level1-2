@@ -1,5 +1,6 @@
-import { Locator, Page } from '@playwright/test';
+import { expect, Locator, Page } from '@playwright/test';
 import { BasePage } from './base.page';
+import { DateUtils } from '../utils/date.utils';
 
 export class HomePage extends BasePage {
 
@@ -8,6 +9,8 @@ export class HomePage extends BasePage {
     readonly suggestionItems: Locator;
     readonly searchButton: Locator;
     readonly searchErrorMessage: Locator;
+    readonly checkInDateInput: Locator;
+    readonly checkOutDateInput: Locator;
 
     constructor(page: Page) {
         super(page);
@@ -16,6 +19,8 @@ export class HomePage extends BasePage {
         this.suggestionItems = this.autocompleteDropdown.locator('li');
         this.searchButton = page.locator('[data-element-name="search-button"]');
         this.searchErrorMessage = page.locator('[data-element-name="search-box-modal-message"]');
+        this.checkInDateInput = page.locator('[data-selenium="checkInBox"]');
+        this.checkOutDateInput = page.locator('[data-selenium="checkOutBox"]');
     }
 
     async searchDestination(destination: string): Promise<void> {
@@ -30,13 +35,24 @@ export class HomePage extends BasePage {
        
     }
 
-    async clickSearchButton(): Promise<void> {
-        await this.searchButton.click();
-    }
-
     async getSearchErrorMessage(): Promise<string> {
     return (await this.searchErrorMessage.innerText()).trim();
 }
-   
+
+    async selectDate(offset: number): Promise<void> {
+        const selectedDate = DateUtils.getRelativeDate(offset);
+        const dateSpan = this.page.locator(`span[data-selenium-date="${selectedDate.fullDate}"]`);
+        await dateSpan.click();
+    }
+
+    async verifyDateIsDisabled(offset: number): Promise<void> {
+
+     const invalidCheckOutDate = DateUtils.getRelativeDate(offset - 1);
+     const pastDateSpan = this.page.locator(`span[data-selenium-date="${invalidCheckOutDate}"]`);
+     const parentButton = pastDateSpan.locator('..');
+     await expect(parentButton).toHaveClass(/disabled/);
+      
+    }
+       
 }
 
