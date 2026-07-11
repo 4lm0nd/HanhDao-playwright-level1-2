@@ -11,6 +11,7 @@ export class HomePage extends BasePage {
     readonly searchErrorMessage: Locator;
     readonly checkInDateInput: Locator;
     readonly checkOutDateInput: Locator;
+    readonly datePicker: Locator;
 
     constructor(page: Page) {
         super(page);
@@ -21,6 +22,7 @@ export class HomePage extends BasePage {
         this.searchErrorMessage = page.locator('[data-element-name="search-box-modal-message"]');
         this.checkInDateInput = page.locator('[data-selenium="checkInBox"]');
         this.checkOutDateInput = page.locator('[data-selenium="checkOutBox"]');
+        this.datePicker = page.locator('[role="tabpanel"]');
     }
 
     async searchDestination(destination: string): Promise<void> {
@@ -41,18 +43,17 @@ export class HomePage extends BasePage {
 
     async selectDate(offset: number): Promise<void> {
         const selectedDate = DateUtils.getRelativeDate(offset);
-        const dateSpan = this.page.locator(`span[data-selenium-date="${selectedDate.fullDate}"]`);
-        await dateSpan.click();
+        const dateCell= this.page.locator(`span[data-selenium-date="${selectedDate.fullDate}"]`);
+        await dateCell.waitFor({ state: 'visible' });
+        await dateCell.click();     
     }
 
     async verifyDateIsDisabled(offset: number): Promise<void> {
-
-     const invalidCheckOutDate = DateUtils.getRelativeDate(offset - 1);
-     const pastDateSpan = this.page.locator(`span[data-selenium-date="${invalidCheckOutDate}"]`);
-     const parentButton = pastDateSpan.locator('..');
-     await expect(parentButton).toHaveClass(/disabled/);
-      
-    }
-       
+     const invalidCheckOutDate = DateUtils.getRelativeDate(offset - 1);   
+     const pastDateCell = this.page.locator(`span[data-selenium-date="${invalidCheckOutDate.fullDate}"]`);
+     await pastDateCell.waitFor({ state: 'visible' });
+     const rootDayCell = pastDateCell.locator('..').locator('..');
+     await expect(rootDayCell).toHaveAttribute('aria-disabled', 'true');       
+}
 }
 

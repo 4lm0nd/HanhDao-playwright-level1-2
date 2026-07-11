@@ -10,6 +10,10 @@ export default defineConfig({
       name: 'playwright-chrome',
       use: {         
         ...devices['Desktop Chrome'],
+            viewport: {
+      width: 1920,
+      height: 1080,
+    },
         channel: 'chrome', 
         headless: false,
         baseURL: constant.baseUrl,
