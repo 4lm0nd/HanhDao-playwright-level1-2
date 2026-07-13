@@ -17,8 +17,6 @@ export const DateUtils = {
       fullDate: format(targetDate, 'yyyy-MM-dd')
     };
   }
-
-
 };
 
 
