@@ -7,3 +7,9 @@ export type OccupancyControl = {
     increase: Locator;
     decrease: Locator;
 };
+
+export const OCCUPANCY_CONFIG: Record<OccupancyOption, { component: string; selenium: string }> = {
+    rooms: { component: 'room', selenium: 'Rooms' },
+    adults: { component: 'adult', selenium: 'Adults' },
+    children: { component: 'children', selenium: 'Children' },
+};

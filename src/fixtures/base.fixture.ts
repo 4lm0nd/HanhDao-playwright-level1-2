@@ -11,12 +11,12 @@ type PageFixtures = {
 };
 
 export const test = base.extend<PageFixtures>({
-    homePage: async ({ page }, use) => {               
-        await page.goto(constant.baseUrl); 
-        await use(new HomePage(page)); 
+    homePage: async ({ page }, use) => {
+        await page.goto('/');
+        await use(new HomePage(page));
     },
 
-    basePage: async ({ page }, use) => {      
+    basePage: async ({ page }, use) => {
         await use(new BasePage(page));
     },
 

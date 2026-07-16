@@ -3,8 +3,8 @@ import { EXPECTED_MESSAGES } from '../constants/messages';
 
 const expectedMessage = EXPECTED_MESSAGES.searchError.success;
 
-test('TC03 - Search withoutdestination', async ({ homePage }) => {    
-    await homePage.click(homePage.searchButton);
+test('TC03 - Search withoutdestination', async ({ homePage }) => {
+    await homePage.searchButton.click();
     const actualMessage = await homePage.getSearchErrorMessage();
-    await homePage.verifySearchErrorMessage(actualMessage,expectedMessage);
-});
+    await homePage.verifySearchErrorMessage(actualMessage, expectedMessage);
+})

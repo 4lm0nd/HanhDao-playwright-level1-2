@@ -8,15 +8,15 @@ export default defineConfig({
   projects: [
     {
       name: 'playwright-chrome',
-      use: {         
+      use: {
         ...devices['Desktop Chrome'],
-            viewport: {
-      width: 1920,
-      height: 1080,
-    },
-        channel: 'chrome', 
+        viewport: {
+          width: 1920,
+          height: 1080,
+        },
+        channel: 'chrome',
         headless: false,
-        baseURL: constant.baseUrl,
+        baseURL: 'https://www.agoda.com/',
         screenshot: 'on',
       }
     }
