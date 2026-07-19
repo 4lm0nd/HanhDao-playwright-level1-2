@@ -7,4 +7,4 @@ test('TC03 - Search without destination', async ({ homePage }) => {
     await homePage.searchButton.click();
     const actualMessage = await homePage.getSearchErrorMessage();
     await homePage.verifySearchErrorMessage(actualMessage, expectedMessage);
-})
+});
