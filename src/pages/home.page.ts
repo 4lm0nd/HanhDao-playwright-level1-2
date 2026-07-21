@@ -70,8 +70,8 @@ export class HomePage {
         checkInDate: number;
         checkOutDate: number;
     }): Promise<void> {
-        await this.selectDate(checkInDate);
-        await this.selectDate(checkOutDate);
+        await this.selectDateFromDatePicker(checkInDate);
+        await this.selectDateFromDatePicker(checkOutDate);
     }
 
 
