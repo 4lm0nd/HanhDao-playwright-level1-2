@@ -1,20 +1,14 @@
 import { test as base } from '@playwright/test';
 import { HomePage } from '../pages/home.page';
 import { ResultsPage } from '../pages/results.page';
-
+import { HotelSearchWorkflow } from '../workflows/searchHotels.workflow';
+import { SearchHotelOptions } from '../workflows/searchHotels.workflow';
 
 type PageFixtures = {
     homePage: HomePage;
     resultsPage: ResultsPage
-    open: (path: string) => Promise<void>;
     searchHotel: (options: SearchHotelOptions) => Promise<ResultsPage>;
-};
-
-type SearchHotelOptions = {
-    destination: string;
-    suggestion: string;
-    checkInDate?: number;
-    checkOutDate?: number;
+    open: (path: string) => Promise<void>;
 };
 
 
@@ -22,7 +16,7 @@ export const test = base.extend<PageFixtures>({
     homePage: async ({ page }, use) => {
         await page.goto('/');
         await use(new HomePage(page));
-        searchHotel: (options: SearchHotelOptions) => Promise<ResultsPage>;
+
     },
 
     resultsPage: async ({ page }, use) => {

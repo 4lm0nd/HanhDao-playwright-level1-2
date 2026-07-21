@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/base.fixture';
+import { test } from '../fixtures/base.fixture';
 import { EXPECTED_MESSAGES } from '../constants/messages';
 
 const expectedMessage = EXPECTED_MESSAGES.searchError.success;

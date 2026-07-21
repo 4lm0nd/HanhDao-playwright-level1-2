@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/base.fixture';
+import { test } from '../fixtures/base.fixture';
 
 const destination = 'Bangkok';
 const suggestion = 'Bangkok, Thailand (City)';

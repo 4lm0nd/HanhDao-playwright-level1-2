@@ -6,7 +6,6 @@ import { OCCUPANCY_CONFIG } from '../data/occupancy.type';
 export type OccupancyConfig = Partial<Record<OccupancyOption, number>>;
 
 export class HomePage {
-
     readonly page: Page;
     readonly destinationInput: Locator;
     readonly autocompleteDropdown: Locator;
@@ -118,7 +117,6 @@ export class HomePage {
 
     async selectOccupancy(config: OccupancyConfig): Promise<void> {
         const entries = Object.entries(config) as [OccupancyOption, number][];
-
         for (const [option, targetValue] of entries) {
             await this.selectOccupancyOption(option, targetValue);
         }

@@ -38,7 +38,6 @@ export class ResultsPage {
 
         await this.page.waitForLoadState('domcontentloaded');
         await this.maxPriceHandle.waitFor({ state: 'visible', timeout: 5000 });
-
         const handle = this.maxPriceHandle;
         await handle.focus();
         const currentValueStr = await handle.getAttribute('aria-valuenow');

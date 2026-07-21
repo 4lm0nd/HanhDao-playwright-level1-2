@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/base.fixture';
+import { test } from '../fixtures/base.fixture';
 
 const destination = 'Bangkok';
 test('TC01 - Search destination', async ({ homePage }) => {
