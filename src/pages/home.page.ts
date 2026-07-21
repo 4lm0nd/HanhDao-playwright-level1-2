@@ -54,7 +54,7 @@ export class HomePage {
         });
     }
 
-    async selectDate(offset: number,): Promise<void> {
+    async selectDateFromDatePicker(offset: number,): Promise<void> {
         await test.step('Select date with offset: "${offset}"', async () => {
             const selectedDate = DateUtils.getRelativeDate(offset);
             const dateCell = this.page.locator(`span[data-selenium-date="${selectedDate.fullDate}"]`);
@@ -63,7 +63,7 @@ export class HomePage {
         });
     }
 
-    async selectDateFromDatePicker({
+    async selectDate({
         checkInDate,
         checkOutDate,
     }: {

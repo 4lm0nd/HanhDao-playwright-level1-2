@@ -6,7 +6,7 @@ const suggestion = 'Tokyo, Japan (City)';
 test('TC04 - Search returns results', async ({ homePage }) => {
     await homePage.searchDestination(destination);
     await homePage.selectAutocompleteItem(suggestion);
-    await homePage.selectDateFromDatePicker({
+    await homePage.selectDate({
         checkInDate: 7,
         checkOutDate: 10,
     }),
