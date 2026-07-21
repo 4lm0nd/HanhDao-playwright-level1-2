@@ -80,8 +80,6 @@ export class HomePage {
             const invalidCheckOutDate = DateUtils.getRelativeDate(offset - 1);
             const pastDateCell = this.page.locator(`span[data-selenium-date="${invalidCheckOutDate.fullDate}"]`);
             await pastDateCell.waitFor({ state: 'visible' });
-
-
             const rootDayCell = this.page
                 .getByRole('button')
                 .filter({ has: pastDateCell });
