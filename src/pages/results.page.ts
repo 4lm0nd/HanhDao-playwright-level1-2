@@ -1,11 +1,12 @@
 import { expect, Locator, Page } from '@playwright/test';
-import { BasePage } from './base.page';
 
-export class ResultsPage extends BasePage {
+
+export class ResultsPage {
+    readonly page: Page;
     readonly hotelCards: Locator;
 
     constructor(page: Page) {
-        super(page);
+        this.page = page;
         this.hotelCards = page.locator('[data-element-name="property-card-info"]');
 
     }

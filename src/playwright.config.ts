@@ -1,5 +1,4 @@
 import { defineConfig, devices } from '@playwright/test';
-import { constant } from './constants/constant';
 
 export default defineConfig({
   testDir: './tests',
@@ -15,7 +14,7 @@ export default defineConfig({
           height: 1080,
         },
         channel: 'chrome',
-        headless: false,
+        headless: true,
         baseURL: 'https://www.agoda.com/',
         screenshot: 'on',
       }

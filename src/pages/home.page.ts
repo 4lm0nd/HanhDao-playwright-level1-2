@@ -1,13 +1,13 @@
 import { expect, Locator, Page, test } from '@playwright/test';
-import { BasePage } from './base.page';
 import { DateUtils } from '../utils/date.utils';
 import { ResultsPage } from './results.page';
 import type { OccupancyOption, OccupancyControl } from '../data/occupancy.type';
 import { OCCUPANCY_CONFIG } from '../data/occupancy.type';
 export type OccupancyConfig = Partial<Record<OccupancyOption, number>>;
 
-export class HomePage extends BasePage {
+export class HomePage {
 
+    readonly page: Page;
     readonly destinationInput: Locator;
     readonly autocompleteDropdown: Locator;
     readonly suggestionItems: Locator;
@@ -19,7 +19,7 @@ export class HomePage extends BasePage {
     readonly occupancyBox: Locator;
 
     constructor(page: Page) {
-        super(page);
+        this.page = page;
         this.destinationInput = page.locator('[data-selenium="textInput"]');
         this.autocompleteDropdown = page.getByTestId('autocomplete-list-box');
         this.suggestionItems = this.autocompleteDropdown.locator('li');
@@ -54,7 +54,7 @@ export class HomePage extends BasePage {
         });
     }
 
-    async selectDate(offset: number): Promise<void> {
+    async selectDate(offset: number,): Promise<void> {
         await test.step('Select date with offset: "${offset}"', async () => {
             const selectedDate = DateUtils.getRelativeDate(offset);
             const dateCell = this.page.locator(`span[data-selenium-date="${selectedDate.fullDate}"]`);
@@ -62,6 +62,18 @@ export class HomePage extends BasePage {
             await dateCell.click()
         });
     }
+
+    async selectDateFromDatePicker({
+        checkInDate,
+        checkOutDate,
+    }: {
+        checkInDate: number;
+        checkOutDate: number;
+    }): Promise<void> {
+        await this.selectDate(checkInDate);
+        await this.selectDate(checkOutDate);
+    }
+
 
     async verifyDateIsDisabled(offset: number): Promise<void> {
         await test.step('Verify date with offset: "${offset}" is disabled', async () => {
@@ -115,7 +127,7 @@ export class HomePage extends BasePage {
     }
 
     async selectOccupancyOption(option: OccupancyOption, targetValue: number): Promise<void> {
-        // Corrected template literal with backticks for the test step name
+
         await test.step('Select occupancy option "${option}" with target value: ${targetValue}', async () => {
             if (!Number.isInteger(targetValue) || targetValue < 0) {
                 throw new Error(`Invalid target value: ${targetValue}. Must be a non-negative integer.`);
@@ -128,7 +140,6 @@ export class HomePage extends BasePage {
                 const isIncreasing = currentValue < targetValue;
                 const button = isIncreasing ? control.increase : control.decrease;
 
-                // Stop instantly if we hit UI limits (e.g., max 9 adults or min 1 room)
                 if (await button.isDisabled()) {
                     throw new Error(
                         `Cannot reach target ${targetValue} for "${option}". The ` +
@@ -138,7 +149,6 @@ export class HomePage extends BasePage {
 
                 await button.click();
 
-                // Poll wait while assigning the fresh UI value directly to 'currentValue'
                 await expect
                     .poll(async () => {
                         currentValue = await this.getOccupancyValue(control);
