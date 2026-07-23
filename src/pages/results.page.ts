@@ -1,5 +1,8 @@
 import { expect, Locator, Page } from '@playwright/test';
 import { CurrencyUtils } from '../utils/currency.utils';
+import { SortOption } from '../data/sortOption.type';
+
+export type OPTION_CONFIG = Partial<Record<SortOption, string>>;
 
 export class ResultsPage {
     readonly page: Page;
@@ -7,7 +10,8 @@ export class ResultsPage {
     readonly maxPriceHandle: Locator;
     readonly sliderTrack: Locator;
     readonly maxPriceLabel: Locator;
-    readonly holtelPrices: Locator;
+    readonly hotelPrices: Locator;
+    readonly sortByDropDown: Locator;
 
     constructor(page: Page) {
         this.page = page;
@@ -17,7 +21,8 @@ export class ResultsPage {
             .getByRole('slider', { name: 'MAX' });
         this.sliderTrack = this.page.locator('.rc-slider-track.rc-slider-track-1');
         this.maxPriceLabel = this.page.locator('.Maximum price filter');
-        this.holtelPrices = this.page.locator('[data-selenium="display-price"]');
+        this.hotelPrices = this.page.locator('[data-selenium="display-price"]');
+        this.sortByDropDown = this.page.locator('data-element-name="search-sort-dropdown"');
     }
 
     async verifySearchResults(destination: string, index: number): Promise<void> {
@@ -25,7 +30,6 @@ export class ResultsPage {
             timeout: 10000,
             message: 'No hotel cards were loaded within 10 seconds.'
         }).toBeGreaterThan(0);
-
 
         for (let i = 0; i < index; i++) {
             await expect(this.hotelCards.nth(i)).toBeVisible();
@@ -35,7 +39,6 @@ export class ResultsPage {
     };
 
     async adjustSliderPrice(targetValue: number): Promise<number> {
-
         await this.page.waitForLoadState('domcontentloaded');
         await this.maxPriceHandle.waitFor({ state: 'visible', timeout: 5000 });
         const handle = this.maxPriceHandle;
@@ -55,19 +58,47 @@ export class ResultsPage {
         return actualMaxPrice
     };
 
-    async verifyPrice(expectedMaxPrice: number): Promise<void> {
-        await expect.poll(async () => await this.holtelPrices.count(), {
+    async verifyPriceIsFiltered(expectedMaxPrice: number): Promise<void> {
+        await expect.poll(async () => await this.hotelPrices.count(), {
             timeout: 10000,
             message: 'No results were loaded within 10 seconds.'
         }).toBeGreaterThan(0);
 
         for (let i = 0; i < 3; i++) {
-            await expect(this.holtelPrices.nth(i)).toBeVisible();
-            const priceText = await this.holtelPrices.nth(i).textContent() ?? '';
+            await expect(this.hotelPrices.nth(i)).toBeVisible();
+            const priceText = await this.hotelPrices.nth(i).textContent() ?? '';
             const actualPrice = CurrencyUtils.parseCurrency(priceText);
             expect(actualPrice).toBeLessThanOrEqual(expectedMaxPrice);
         }
     };
+
+    async selectSortByOption(optionName: string): Promise<void> {
+        await this.sortByDropDown.click();
+        const option = this.page.locator('li[data-element-name="search-sort-dropdown-option"]', {
+            hasText: optionName,
+        });
+
+        await option.click();
+    }
+
+    async verifyPriceIsSorted(): Promise<void> {
+
+        const total = Math.min(await this.hotelPrices.count(), 5);
+        const actualPrices: number[] = [];
+
+        for (let i = 0; i < total; i++) {
+            actualPrices.push(
+                CurrencyUtils.parseCurrency(
+                    await this.hotelPrices.nth(i).innerText()
+                )
+            );
+        }
+
+        const expectedPrices = [...actualPrices].sort((a, b) => a - b);
+
+        expect(actualPrices).toEqual(expectedPrices);
+
+    }
 
 }
 

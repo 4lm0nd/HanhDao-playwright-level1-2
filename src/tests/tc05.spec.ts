@@ -3,7 +3,8 @@ import { test } from '../fixtures/base.fixture';
 const destination = 'Bangkok';
 const suggestion = 'Bangkok, Thailand (City)';
 
-test('TC05 - Search returns results', async ({ searchHotel }) => {
+
+test('TC05 - Filter price returns results', async ({ searchHotel }) => {
     const resultsPage = await searchHotel({
         destination: destination,
         suggestion: suggestion,
@@ -12,6 +13,6 @@ test('TC05 - Search returns results', async ({ searchHotel }) => {
     });
 
     const expectedMaxPrice = await resultsPage.adjustSliderPrice(30)
-    await resultsPage.verifyPrice(expectedMaxPrice)
+    await resultsPage.verifyPriceIsFiltered(expectedMaxPrice)
 
 });
