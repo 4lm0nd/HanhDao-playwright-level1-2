@@ -18,7 +18,7 @@ export class ResultsPage {
         }).toBeGreaterThan(0);
 
 
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < index; i++) {
             await expect(this.hotelCards.nth(i)).toBeVisible();
             await expect(this.page.locator('[data-selenium= "area-city-text"]').nth(i)).
                 toContainText(destination, { timeout: 10000 });

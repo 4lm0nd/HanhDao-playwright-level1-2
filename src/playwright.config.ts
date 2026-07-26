@@ -3,6 +3,8 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './tests',
   reporter: 'html',
+  workers: 1,
+  fullyParallel: false,
 
   projects: [
     {
@@ -14,7 +16,7 @@ export default defineConfig({
           height: 1080,
         },
         channel: 'chrome',
-        headless: true,
+        headless: false,
         baseURL: 'https://www.agoda.com/',
         screenshot: 'on',
       }

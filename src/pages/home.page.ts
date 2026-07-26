@@ -38,28 +38,15 @@ export class HomePage {
         });
     }
 
-
-    async verifySuggestionsRelatedTo(destination: string): Promise<void> {
-        await test.step('Verify suggestions related to: "${destination}"', async () => {
-            const suggestions = await this.suggestionItems.allTextContents();
-            const relatedSuggestions = suggestions.filter(
-                suggestion => suggestion.toLowerCase().includes(destination.toLowerCase()))
-        });
-
-    }
-
     async getSearchErrorMessage(): Promise<string> {
-        return await test.step('Get search error message', async () => {
-            return (await this.searchErrorMessage.innerText()).trim()
-        });
+        return (await this.searchErrorMessage.innerText()).trim();
     }
 
-    async selectDateFromDatePicker(offset: number,): Promise<void> {
-        await test.step('Select date with offset: "${offset}"', async () => {
+    async selectDateFromDatePicker(offset: number): Promise<void> {
+        await test.step(`Select date with offset: ${offset}`, async () => {
             const selectedDate = DateUtils.getRelativeDate(offset);
             const dateCell = this.page.locator(`span[data-selenium-date="${selectedDate.fullDate}"]`);
-            await dateCell.waitFor({ state: 'visible' });
-            await dateCell.click()
+            await dateCell.click();
         });
     }
 
@@ -77,14 +64,22 @@ export class HomePage {
 
     async verifyDateIsDisabled(offset: number): Promise<void> {
         await test.step('Verify date with offset: "${offset}" is disabled', async () => {
-            const invalidCheckOutDate = DateUtils.getRelativeDate(offset - 1);
-            const pastDateCell = this.page.locator(`span[data-selenium-date="${invalidCheckOutDate.fullDate}"]`);
-            await pastDateCell.waitFor({ state: 'visible' });
-            const rootDayCell = this.page
-                .getByRole('button')
-                .filter({ has: pastDateCell });
 
-            await expect(rootDayCell).toBeDisabled
+            const checkOutDate = DateUtils.getRelativeDate(offset);
+            const dayOfMonth = checkOutDate.day
+
+            if (dayOfMonth === '01') {
+                const previousMonthButton = this.page.locator('[aria-label="Previous Month"]');
+                expect(previousMonthButton).toBeDisabled();
+            } else {
+                const invalidCheckOutDate = DateUtils.getRelativeDate(offset - 1);
+                const pastDateCell = this.page.locator(`span[data-selenium-date="${invalidCheckOutDate.fullDate}"]`);
+                const rootDayCell = this.page
+                    .getByRole('button')
+                    .filter({ has: pastDateCell });
+                expect(rootDayCell).toBeDisabled
+            }
+
         });
     }
 
