@@ -21,6 +21,7 @@ export class HomePage {
     readonly sortDropDown: Locator;
 
 
+
     constructor(page: Page) {
         this.page = page;
         this.destinationInput = page.locator('[data-selenium="textInput"]');
@@ -32,7 +33,8 @@ export class HomePage {
         this.checkOutDateInput = page.locator('[data-selenium="checkOutText"]');
         this.dropdownContainer = page.locator('div[data-selenium="autocompletePanel"]');
         this.occupancyBox = page.locator('[data-element-name="occupancy-box"]');
-        this.sortDropDown = page.locator('data-element-name="search-sort-dropdown"');
+        this.sortDropDown = page.locator('[data-element-name="search-sort-dropdown"]');
+
 
     }
 
