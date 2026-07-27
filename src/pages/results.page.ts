@@ -1,8 +1,7 @@
 import { expect, Locator, Page } from '@playwright/test';
 import { CurrencyUtils } from '../utils/currency.utils';
-import { SortOption } from '../data/sortOption.type';
+import { SortOption, SortOptions } from '../data/sortOption.enum';
 
-export type OPTION_CONFIG = Partial<Record<SortOption, string>>;
 
 export class ResultsPage {
     readonly page: Page;
@@ -12,6 +11,7 @@ export class ResultsPage {
     readonly maxPriceLabel: Locator;
     readonly hotelPrices: Locator;
     readonly sortByDropDown: Locator;
+    readonly optionsMenu: Locator;
 
     constructor(page: Page) {
         this.page = page;
@@ -22,7 +22,8 @@ export class ResultsPage {
         this.sliderTrack = this.page.locator('.rc-slider-track.rc-slider-track-1');
         this.maxPriceLabel = this.page.locator('.Maximum price filter');
         this.hotelPrices = this.page.locator('[data-selenium="display-price"]');
-        this.sortByDropDown = this.page.locator('data-element-name="search-sort-dropdown"');
+        this.sortByDropDown = this.page.locator('[data-element-name="search-sort-dropdown"]');
+        this.optionsMenu = page.locator('[role="listbox"]');
     }
 
     async verifySearchResults(destination: string, index: number): Promise<void> {
@@ -72,18 +73,18 @@ export class ResultsPage {
         }
     };
 
-    async selectSortByOption(optionName: string): Promise<void> {
+    async selectSortByOption(sortOption: SortOption): Promise<void> {
         await this.sortByDropDown.click();
         const option = this.page.locator('li[data-element-name="search-sort-dropdown-option"]', {
-            hasText: optionName,
+            hasText: new RegExp(`^${sortOption.component}$`, 'i')
         });
-
         await option.click();
+        await this.hotelPrices.first().waitFor();
     }
 
-    async verifyPriceIsSorted(): Promise<void> {
+    async verifyPriceIsSorted(index: number): Promise<void> {
 
-        const total = Math.min(await this.hotelPrices.count(), 5);
+        const total = Math.min(await this.hotelPrices.count(), index);
         const actualPrices: number[] = [];
 
         for (let i = 0; i < total; i++) {
@@ -95,10 +96,15 @@ export class ResultsPage {
         }
 
         const expectedPrices = [...actualPrices].sort((a, b) => a - b);
-
         expect(actualPrices).toEqual(expectedPrices);
-
     }
+
+    async selectCustomOption(optionText: string): Promise<void> {
+        await this.sortByDropDown.click();
+        const optionToSelect = this.optionsMenu.locator(`li`, { hasText: optionText });
+        await optionToSelect.click();
+    }
+
 
 }
 

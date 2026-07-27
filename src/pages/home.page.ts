@@ -3,6 +3,8 @@ import { DateUtils } from '../utils/date.utils';
 import { ResultsPage } from './results.page';
 import type { OccupancyOption, OccupancyControl } from '../data/occupancy.type';
 import { OCCUPANCY_CONFIG } from '../data/occupancy.type';
+import { parse } from 'date-fns';
+import { CurrencyUtils } from '../utils/currency.utils';
 export type OccupancyConfig = Partial<Record<OccupancyOption, number>>;
 
 export class HomePage {
@@ -16,6 +18,8 @@ export class HomePage {
     readonly checkOutDateInput: Locator;
     readonly dropdownContainer: Locator;
     readonly occupancyBox: Locator;
+    readonly sortDropDown: Locator;
+
 
     constructor(page: Page) {
         this.page = page;
@@ -24,10 +28,12 @@ export class HomePage {
         this.suggestionItems = this.autocompleteDropdown.locator('li');
         this.searchButton = page.locator('[data-element-name="search-button"]');
         this.searchErrorMessage = page.locator('[data-element-name="search-box-modal-message"]');
-        this.checkInDateInput = page.locator('[data-selenium="checkInBox"]');
-        this.checkOutDateInput = page.locator('[data-selenium="checkOutBox"]');
+        this.checkInDateInput = page.locator('[data-selenium="checkInText"]');
+        this.checkOutDateInput = page.locator('[data-selenium="checkOutText"]');
         this.dropdownContainer = page.locator('div[data-selenium="autocompletePanel"]');
         this.occupancyBox = page.locator('[data-element-name="occupancy-box"]');
+        this.sortDropDown = page.locator('data-element-name="search-sort-dropdown"');
+
     }
 
     async searchDestination(destination: string): Promise<void> {
@@ -41,9 +47,26 @@ export class HomePage {
         return (await this.searchErrorMessage.innerText()).trim();
     }
 
-    async selectDateFromDatePicker(offset: number): Promise<void> {
-        await test.step(`Select date with offset: ${offset}`, async () => {
+    async selectDateFromDatePicker(offset: number,): Promise<void> {
+        await test.step('Select date from Datepicker with offset: "${offset}"', async () => {
+
+            const dateText = await this.checkInDateInput.innerText();
             const selectedDate = DateUtils.getRelativeDate(offset);
+            const selectedMonth = CurrencyUtils.parseCurrency(selectedDate.month);
+            const monthCheckInText = DateUtils.parseDate(dateText, 'd MMM yyyy').month;
+            const monthCheckIn = CurrencyUtils.parseCurrency(monthCheckInText);
+
+            if (monthCheckIn < selectedMonth) {
+                const nextBtn = this.page.locator('[aria-label="Next Month"]');
+                await nextBtn.click();
+                await this.page.waitForTimeout(500);
+            }
+            else if (monthCheckIn > selectedMonth) {
+                const prevBtn = this.page.locator('[aria-label="Previous Month"]');
+                await prevBtn.click();
+                await this.page.waitForTimeout(500);
+            }
+
             const dateCell = this.page.locator(`span[data-selenium-date="${selectedDate.fullDate}"]`);
             await dateCell.click();
         });
@@ -172,5 +195,6 @@ export class HomePage {
             decrease: this.page.locator(`[data-selenium="occupancy${selenium}"] [data-selenium="minus"]`),
         };
     }
+
 
 }
