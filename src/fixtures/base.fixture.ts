@@ -23,6 +23,11 @@ export const test = base.extend<PageFixtures>({
         await use(new ResultsPage(page));
     },
 
+    searchHotel: async ({ homePage }, use) => {
+        const workflow = new HotelSearchWorkflow(homePage);
+        await use((options) => workflow.searchHoltel(options));
+    },
+
 });
 
 export { expect } from '@playwright/test';

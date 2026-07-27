@@ -10,7 +10,7 @@ test('TC06 - Sort price returns results', async ({ searchHotel }) => {
         destination: destination,
         suggestion: suggestion,
         checkInDate: 5,
-        checkOutDate: 8,
+        checkOutDate: 7,
     });
 
     await resultsPage.selectSortByOption(SortOptions.LowestPrice);
