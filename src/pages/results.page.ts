@@ -1,5 +1,5 @@
 import { expect, Locator, Page } from '@playwright/test';
-import { CurrencyUtils } from '../utils/currency.utils';
+import { DataUtils } from '../utils/data.utils';
 import { SortOption, SortOptions } from '../data/sortOption.enum';
 
 
@@ -55,7 +55,7 @@ export class ResultsPage {
         }
 
         const maxPriceStr = await this.maxPriceHandle.getAttribute('aria-valuetext') ?? '';
-        const actualMaxPrice = CurrencyUtils.parseCurrency(maxPriceStr);
+        const actualMaxPrice = DataUtils.parseNumber(maxPriceStr);
         return actualMaxPrice
     };
 
@@ -68,7 +68,7 @@ export class ResultsPage {
         for (let i = 0; i < 3; i++) {
             await expect(this.hotelPrices.nth(i)).toBeVisible();
             const priceText = await this.hotelPrices.nth(i).textContent() ?? '';
-            const actualPrice = CurrencyUtils.parseCurrency(priceText);
+            const actualPrice = DataUtils.parseNumber(priceText);
             expect(actualPrice).toBeLessThanOrEqual(expectedMaxPrice);
         }
     };
@@ -89,7 +89,7 @@ export class ResultsPage {
 
         for (let i = 0; i < total; i++) {
             actualPrices.push(
-                CurrencyUtils.parseCurrency(
+                DataUtils.parseNumber(
                     await this.hotelPrices.nth(i).innerText()
                 )
             );

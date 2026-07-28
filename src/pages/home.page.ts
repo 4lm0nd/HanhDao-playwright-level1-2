@@ -4,7 +4,7 @@ import { ResultsPage } from './results.page';
 import type { OccupancyOption, OccupancyControl } from '../data/occupancy.type';
 import { OCCUPANCY_CONFIG } from '../data/occupancy.type';
 import { parse } from 'date-fns';
-import { CurrencyUtils } from '../utils/currency.utils';
+import { DataUtils } from '../utils/data.utils';
 export type OccupancyConfig = Partial<Record<OccupancyOption, number>>;
 
 export class HomePage {
@@ -49,21 +49,25 @@ export class HomePage {
         return (await this.searchErrorMessage.innerText()).trim();
     }
 
+    private async goToMonth(targetMonth: string): Promise<number> {
+        const monthText = DateUtils.parseDate(targetMonth, 'd MMM yyyy').month;
+        return (DataUtils.parseNumber(monthText));
+    }
+
     async selectDateFromDatePicker(offset: number,): Promise<void> {
         await test.step('Select date from Datepicker with offset: "${offset}"', async () => {
 
             const dateText = await this.checkInDateInput.innerText();
-            const selectedDate = DateUtils.getRelativeDate(offset);
-            const selectedMonth = CurrencyUtils.parseCurrency(selectedDate.month);
-            const monthCheckInText = DateUtils.parseDate(dateText, 'd MMM yyyy').month;
-            const monthCheckIn = CurrencyUtils.parseCurrency(monthCheckInText);
+            const selectedDate = DateUtils.getRelativeDate(offset, 'yyyy-MM-dd');
+            const selectedMonth = DataUtils.parseNumber(selectedDate.month);
+            const monthCheckIn = this.goToMonth(dateText);
 
-            if (monthCheckIn < selectedMonth) {
+            if (await monthCheckIn < selectedMonth) {
                 const nextBtn = this.page.locator('[aria-label="Next Month"]');
                 await nextBtn.click();
                 await this.page.waitForTimeout(500);
             }
-            else if (monthCheckIn > selectedMonth) {
+            else if (await monthCheckIn > selectedMonth) {
                 const prevBtn = this.page.locator('[aria-label="Previous Month"]');
                 await prevBtn.click();
                 await this.page.waitForTimeout(500);
