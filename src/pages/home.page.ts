@@ -1,12 +1,13 @@
 import { expect, Locator, Page, test } from '@playwright/test';
 import { DateUtils } from '../utils/date.utils';
 import { ResultsPage } from './results.page';
+import { DealPage } from './deal.page';
 import type { OccupancyOption, OccupancyControl } from '../data/occupancy.type';
 import { OCCUPANCY_CONFIG } from '../data/occupancy.type';
+import { DataUtils } from '../utils/data.utils';
 export type OccupancyConfig = Partial<Record<OccupancyOption, number>>;
 
 export class HomePage {
-
     readonly page: Page;
     readonly destinationInput: Locator;
     readonly autocompleteDropdown: Locator;
@@ -17,6 +18,11 @@ export class HomePage {
     readonly checkOutDateInput: Locator;
     readonly dropdownContainer: Locator;
     readonly occupancyBox: Locator;
+    readonly sortDropDown: Locator;
+
+    readonly previousMonthButton: Locator;
+    readonly nextMonthButton: Locator;
+
 
     constructor(page: Page) {
         this.page = page;
@@ -25,10 +31,14 @@ export class HomePage {
         this.suggestionItems = this.autocompleteDropdown.locator('li');
         this.searchButton = page.locator('[data-element-name="search-button"]');
         this.searchErrorMessage = page.locator('[data-element-name="search-box-modal-message"]');
-        this.checkInDateInput = page.locator('[data-selenium="checkInBox"]');
-        this.checkOutDateInput = page.locator('[data-selenium="checkOutBox"]');
+        this.checkInDateInput = page.locator('[data-selenium="checkInText"]');
+        this.checkOutDateInput = page.locator('[data-selenium="checkOutText"]');
         this.dropdownContainer = page.locator('div[data-selenium="autocompletePanel"]');
         this.occupancyBox = page.locator('[data-element-name="occupancy-box"]');
+        this.sortDropDown = page.locator('[data-element-name="search-sort-dropdown"]');
+        this.previousMonthButton = page.locator('[aria-label="Previous Month"]');
+        this.nextMonthButton = page.locator('[aria-label="Next Month"]');
+
     }
 
     async searchDestination(destination: string): Promise<void> {
@@ -42,9 +52,26 @@ export class HomePage {
         return (await this.searchErrorMessage.innerText()).trim();
     }
 
-    async selectDateFromDatePicker(offset: number): Promise<void> {
-        await test.step(`Select date with offset: ${offset}`, async () => {
-            const selectedDate = DateUtils.getRelativeDate(offset);
+    private async goToMonth(targetMonth: string): Promise<number> {
+        const monthText = DateUtils.parseDate(targetMonth, 'd MMM yyyy').month;
+        return (DataUtils.parseNumber(monthText));
+    }
+
+    async selectDateFromDatePicker(offset: number,): Promise<void> {
+        await test.step('Select date from Datepicker with offset: "${offset}"', async () => {
+
+            const dateText = await this.checkInDateInput.innerText();
+            const selectedDate = DateUtils.getRelativeDate(offset, 'yyyy-MM-dd');
+            const selectedMonth = DataUtils.parseNumber(selectedDate.month);
+            const monthCheckIn = this.goToMonth(dateText);
+
+            if (await monthCheckIn < selectedMonth) {
+                await this.nextMonthButton.click();
+            }
+            else if (await monthCheckIn > selectedMonth) {
+                await this.previousMonthButton.click();
+            }
+
             const dateCell = this.page.locator(`span[data-selenium-date="${selectedDate.fullDate}"]`);
             await dateCell.click();
         });
@@ -69,8 +96,7 @@ export class HomePage {
             const dayOfMonth = checkOutDate.day
 
             if (dayOfMonth === '01') {
-                const previousMonthButton = this.page.locator('[aria-label="Previous Month"]');
-                expect(previousMonthButton).toBeDisabled();
+                expect(this.previousMonthButton).toBeDisabled();
             } else {
                 const invalidCheckOutDate = DateUtils.getRelativeDate(offset - 1);
                 const pastDateCell = this.page.locator(`span[data-selenium-date="${invalidCheckOutDate.fullDate}"]`);
@@ -81,6 +107,17 @@ export class HomePage {
             }
 
         });
+    }
+
+
+    async selectViewAll(section: string): Promise<DealPage> {
+        return await test.step('Click View All and wait for Deal page to load', async () => {
+            const carousel = this.page.locator(`[data-carousel-section="${section}"]`);
+            const viewAllButton = carousel.locator('[aria-label="View all accommodation promotion links"]')
+            await viewAllButton.click();
+            return new DealPage(this.page);
+        });
+
     }
 
     async selectAutocompleteItem(keyword: string): Promise<void> {
@@ -118,7 +155,6 @@ export class HomePage {
 
     async selectOccupancy(config: OccupancyConfig): Promise<void> {
         const entries = Object.entries(config) as [OccupancyOption, number][];
-
         for (const [option, targetValue] of entries) {
             await this.selectOccupancyOption(option, targetValue);
         }
@@ -176,3 +212,7 @@ export class HomePage {
     }
 
 }
+
+
+
+

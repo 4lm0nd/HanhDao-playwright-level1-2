@@ -1,4 +1,4 @@
-import { addDays, format, subDays } from 'date-fns';
+import { addDays, format, parse, subDays } from 'date-fns';
 
 export const DateUtils = {
   /**   
@@ -14,7 +14,23 @@ export const DateUtils = {
       day: format(targetDate, 'dd'),
       month: format(targetDate, 'MM'),
       year: format(targetDate, 'yyyy'),
-      fullDate: format(targetDate, 'yyyy-MM-dd')
+      fullDate: format(targetDate, formatStr),
+      shortDay: format(targetDate, 'd'),
+      shortMonth: format(targetDate, 'M'),
+      rawDate: targetDate
+    };
+  },
+
+  parseDate(dateText: string, formatStr: string = 'yyyy-MM-dd') {
+
+    const date = parse(dateText, formatStr, new Date());
+
+    return {
+      day: format(date, 'dd'),
+      month: format(date, 'MM'),
+      year: format(date, 'yyyy'),
+      fullDate: format(date, formatStr),
+      rawDate: date
     };
   }
 };
