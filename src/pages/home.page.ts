@@ -19,6 +19,8 @@ export class HomePage {
     readonly dropdownContainer: Locator;
     readonly occupancyBox: Locator;
     readonly sortDropDown: Locator;
+    readonly previousMonthButton: Locator;
+    readonly nextMonthButton: Locator;
 
 
 
@@ -34,7 +36,8 @@ export class HomePage {
         this.dropdownContainer = page.locator('div[data-selenium="autocompletePanel"]');
         this.occupancyBox = page.locator('[data-element-name="occupancy-box"]');
         this.sortDropDown = page.locator('[data-element-name="search-sort-dropdown"]');
-
+        this.previousMonthButton = page.locator('[aria-label="Previous Month"]');
+        this.nextMonthButton = page.locator('[aria-label="Next Month"]');
 
     }
 
@@ -63,14 +66,12 @@ export class HomePage {
             const monthCheckIn = this.goToMonth(dateText);
 
             if (await monthCheckIn < selectedMonth) {
-                const nextBtn = this.page.locator('[aria-label="Next Month"]');
-                await nextBtn.click();
-                await this.page.waitForTimeout(500);
+
+                await this.nextMonthButton.click();
             }
             else if (await monthCheckIn > selectedMonth) {
-                const prevBtn = this.page.locator('[aria-label="Previous Month"]');
-                await prevBtn.click();
-                await this.page.waitForTimeout(500);
+
+                await this.previousMonthButton.click();
             }
 
             const dateCell = this.page.locator(`span[data-selenium-date="${selectedDate.fullDate}"]`);
@@ -97,8 +98,7 @@ export class HomePage {
             const dayOfMonth = checkOutDate.day
 
             if (dayOfMonth === '01') {
-                const previousMonthButton = this.page.locator('[aria-label="Previous Month"]');
-                expect(previousMonthButton).toBeDisabled();
+                expect(this.previousMonthButton).toBeDisabled();
             } else {
                 const invalidCheckOutDate = DateUtils.getRelativeDate(offset - 1);
                 const pastDateCell = this.page.locator(`span[data-selenium-date="${invalidCheckOutDate.fullDate}"]`);
