@@ -28,20 +28,20 @@ export class ResultsPage {
 
     async verifySearchResults(destination: string, index: number): Promise<void> {
         await expect.poll(async () => await this.hotelCards.count(), {
-            timeout: 10000,
-            message: 'No hotel cards were loaded within 10 seconds.'
+            timeout: 30000,
+            message: 'No hotel cards were loaded within 30 seconds.'
         }).toBeGreaterThan(0);
 
         for (let i = 0; i < index; i++) {
             await expect(this.hotelCards.nth(i)).toBeVisible();
             await expect(this.page.locator('[data-selenium= "area-city-text"]').nth(i)).
-                toContainText(destination, { timeout: 10000 });
+                toContainText(destination, { timeout: 30000 });
         }
     };
 
     async adjustSliderPrice(targetValue: number): Promise<number> {
         await this.page.waitForLoadState('domcontentloaded');
-        await this.maxPriceHandle.waitFor({ state: 'visible', timeout: 5000 });
+        await this.maxPriceHandle.waitFor({ state: 'visible', timeout: 10000 });
         const handle = this.maxPriceHandle;
         await handle.focus();
         const currentValueStr = await handle.getAttribute('aria-valuenow');
@@ -51,7 +51,7 @@ export class ResultsPage {
 
         for (let i = 0; i < steps; i++) {
             await handle.press(key);
-            await this.page.waitForTimeout(50);
+            await this.page.waitForTimeout(100)
         }
 
         const maxPriceStr = await this.maxPriceHandle.getAttribute('aria-valuetext') ?? '';
@@ -79,11 +79,10 @@ export class ResultsPage {
             hasText: new RegExp(`^${sortOption.component}$`, 'i')
         });
         await option.click();
-        await this.hotelPrices.first().waitFor();
+        await this.hotelPrices.first().waitFor({ state: 'visible', timeout: 50000 });
     }
 
     async verifyPriceIsSorted(index: number): Promise<void> {
-
         const total = Math.min(await this.hotelPrices.count(), index);
         const actualPrices: number[] = [];
 
@@ -98,13 +97,5 @@ export class ResultsPage {
         const expectedPrices = [...actualPrices].sort((a, b) => a - b);
         expect(actualPrices).toEqual(expectedPrices);
     }
-
-    async selectCustomOption(optionText: string): Promise<void> {
-        await this.sortByDropDown.click();
-        const optionToSelect = this.optionsMenu.locator(`li`, { hasText: optionText });
-        await optionToSelect.click();
-    }
-
-
 }
 

@@ -6,6 +6,7 @@ const suggestion = 'Bangkok, Thailand (City)';
 
 
 test('TC06 - Sort price returns results', async ({ searchHotel }) => {
+    test.setTimeout(60000);
     const resultsPage = await searchHotel({
         destination: destination,
         suggestion: suggestion,

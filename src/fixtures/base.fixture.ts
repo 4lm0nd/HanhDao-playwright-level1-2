@@ -3,10 +3,14 @@ import { HomePage } from '../pages/home.page';
 import { ResultsPage } from '../pages/results.page';
 import { HotelSearchWorkflow } from '../workflows/searchHotels.workflow';
 import { SearchHotelOptions } from '../workflows/searchHotels.workflow';
+import { DealPage } from '../pages/deal.page';
+import { PromotionDialog } from '../pages/promotionDialog.page';
 
 type PageFixtures = {
     homePage: HomePage;
-    resultsPage: ResultsPage
+    resultsPage: ResultsPage;
+    dealPage: DealPage;
+    promtionDialog: PromotionDialog;
     searchHotel: (options: SearchHotelOptions) => Promise<ResultsPage>;
     open: (path: string) => Promise<void>;
 };
@@ -26,6 +30,15 @@ export const test = base.extend<PageFixtures>({
     searchHotel: async ({ homePage }, use) => {
         const workflow = new HotelSearchWorkflow(homePage);
         await use((options) => workflow.searchHoltel(options));
+    },
+
+    dealPage: async ({ page }, use) => {
+        await use(new DealPage(page));
+    },
+
+    promtionDialog: async ({ page }, use) => {
+        await use(new PromotionDialog(page));
+
     },
 
 });

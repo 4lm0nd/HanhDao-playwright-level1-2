@@ -1,9 +1,9 @@
 import { expect, Locator, Page, test } from '@playwright/test';
 import { DateUtils } from '../utils/date.utils';
 import { ResultsPage } from './results.page';
+import { DealPage } from './deal.page';
 import type { OccupancyOption, OccupancyControl } from '../data/occupancy.type';
 import { OCCUPANCY_CONFIG } from '../data/occupancy.type';
-import { parse } from 'date-fns';
 import { DataUtils } from '../utils/data.utils';
 export type OccupancyConfig = Partial<Record<OccupancyOption, number>>;
 
@@ -20,6 +20,8 @@ export class HomePage {
     readonly occupancyBox: Locator;
     readonly sortDropDown: Locator;
 
+    readonly previousMonthButton: Locator;
+    readonly nextMonthButton: Locator;
 
 
     constructor(page: Page) {
@@ -34,7 +36,8 @@ export class HomePage {
         this.dropdownContainer = page.locator('div[data-selenium="autocompletePanel"]');
         this.occupancyBox = page.locator('[data-element-name="occupancy-box"]');
         this.sortDropDown = page.locator('[data-element-name="search-sort-dropdown"]');
-
+        this.previousMonthButton = page.locator('[aria-label="Previous Month"]');
+        this.nextMonthButton = page.locator('[aria-label="Next Month"]');
 
     }
 
@@ -63,14 +66,10 @@ export class HomePage {
             const monthCheckIn = this.goToMonth(dateText);
 
             if (await monthCheckIn < selectedMonth) {
-                const nextBtn = this.page.locator('[aria-label="Next Month"]');
-                await nextBtn.click();
-                await this.page.waitForTimeout(500);
+                await this.nextMonthButton.click();
             }
             else if (await monthCheckIn > selectedMonth) {
-                const prevBtn = this.page.locator('[aria-label="Previous Month"]');
-                await prevBtn.click();
-                await this.page.waitForTimeout(500);
+                await this.previousMonthButton.click();
             }
 
             const dateCell = this.page.locator(`span[data-selenium-date="${selectedDate.fullDate}"]`);
@@ -97,8 +96,7 @@ export class HomePage {
             const dayOfMonth = checkOutDate.day
 
             if (dayOfMonth === '01') {
-                const previousMonthButton = this.page.locator('[aria-label="Previous Month"]');
-                expect(previousMonthButton).toBeDisabled();
+                expect(this.previousMonthButton).toBeDisabled();
             } else {
                 const invalidCheckOutDate = DateUtils.getRelativeDate(offset - 1);
                 const pastDateCell = this.page.locator(`span[data-selenium-date="${invalidCheckOutDate.fullDate}"]`);
@@ -109,6 +107,17 @@ export class HomePage {
             }
 
         });
+    }
+
+
+    async selectViewAll(section: string): Promise<DealPage> {
+        return await test.step('Click View All and wait for Deal page to load', async () => {
+            const carousel = this.page.locator(`[data-carousel-section="${section}"]`);
+            const viewAllButton = carousel.locator('[aria-label="View all accommodation promotion links"]')
+            await viewAllButton.click();
+            return new DealPage(this.page);
+        });
+
     }
 
     async selectAutocompleteItem(keyword: string): Promise<void> {
@@ -202,5 +211,8 @@ export class HomePage {
         };
     }
 
-
 }
+
+
+
+
